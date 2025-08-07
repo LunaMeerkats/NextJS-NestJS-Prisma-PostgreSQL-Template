@@ -1,142 +1,109 @@
-🔧 Backend AGENTS.md – NestJS + Prisma (Production‐Ready)
-Overview & architecture
-
-Explain what the backend does (e.g., REST/GraphQL API, microservices or monolith).
-
-List core modules: auth/, users/, jobs/, notifications/, analytics/ etc.
-
-Clarify whether it’s a monolith or microservices and how they communicate (HTTP, gRPC, message queue).
-
-Project structure
-
-Root folders: src/ (app code), prisma/ (schema & migrations), test/, scripts/, config/, docker/, infra/, docs/.
-
-Within src/, group by domain: each module contains its *.module.ts, *.service.ts, *.controller.ts, DTOs and interfaces.
-
-Environment config
-
-Use separate env files: .env.development, .env.staging, .env.production. Each holds only variables for that environment.
-
-Document required variables (e.g., DATABASE_URL, JWT_SECRET, REDIS_HOST, SENTRY_DSN, MAILER_API_KEY, PORT, NODE_ENV).
-
-Use @nestjs/config’s ConfigModule.forRoot() to load the correct .env based on NODE_ENV; this centralizes configuration and keeps secrets out of code
-
-docs.nestjs.com
-.
-
-Prisma setup
-
-Define your database schema in prisma/schema.prisma.
-
-Run migrations locally with npx prisma migrate dev --name <migration-name>; this generates SQL files and applies them
-prisma.io
-.
-
-For production, run npx prisma migrate deploy during deployment; it applies pending migrations without prompting.
-
-Generate the Prisma client via npx prisma generate (this is auto‑run by prisma migrate dev
-prisma.io
-).
-
-Build & run commands
-
-Development:
-
-npm install
-
-npm run start:dev – uses ts-node and hot reload.
-
-Production:
-
-npm run build – compiles TypeScript to dist/.
-
-npm run start:prod – runs compiled JS with NODE_ENV=production.
-
-Use docker build and docker run --env-file .env.production for containerized runs.
-
-Linting & formatting
-
-Configure eslint and prettier.
-
-Use husky + lint-staged to auto‑format and lint on commit.
-
-Include npm run lint in CI.
-
-Testing
-
-Unit tests with Jest: npm run test.
-
-Coverage enforcement: npm run test:cov (set thresholds in jest.config.js).
-
-Mirror src/ structure under test/ for clarity.
-
-Dependencies
-
-Keep dev‑dependencies (typescript, @types/*, jest, eslint, prettier) separate from runtime deps.
-
-Never run ts-node in production; compile with npm run build first.
-
-Security
-
-Load secrets from AWS Secrets Manager or Vault; avoid hard‑coding.
-
-Globally apply helmet() to set security headers
-
-docs.nestjs.com
-.
-
-Enable CORS with a whitelist, and rate‑limit requests with @nestjs/throttler.
-
-Database & migrations
-
-Document how to create, run and revert Prisma migrations.
-
-Outline retry/back‑off logic when connecting to the DB (e.g., exponential backoff with max retries).
-
-Monitoring & logging
-
-Use winston or pino with JSON formatting; pipe logs to CloudWatch/ELK.
-
-Expose /health and /metrics (Prometheus) endpoints.
-
-Integrate error tracking (e.g., Sentry, Datadog).
-
-Messaging & background jobs
-
-Describe any message queues (e.g., RabbitMQ/SQS) and background workers (e.g., src/agents/email.agent.ts).
-
-Provide commands to start workers (e.g., npm run start:worker).
-
-Note CRON schedules or job definitions.
-
-CI/CD
-
-Pipeline steps: install → lint → test → build → run Prisma migrations → deploy.
-
-Use environment‑specific secrets in CI; never commit .env* files to git
-nextjs.org
-.
-
-Deployment & orchestration
-
-Provide sample ecosystem.config.js for PM2 or Helm charts for Kubernetes.
-
-Specify resource limits, autoscaling settings, and rollback strategies.
-
-Debugging & docs
-
-Support npm run start:debug for debugging with inspector.
-
-List Swagger/OpenAPI URL (e.g., /api).
-
-Use local mocks (docker-compose.yml) for external services (Redis, Postgres).
-
-Agent hints
-
-Remind agents to update AppModule when adding modules.
-
-Enforce DTO validation; never bypass pipes.
-
-Follow naming conventions (*.service.ts, *.controller.ts).
-
-Always run prisma generate after changing schema.
+# Backend AGENTS Guide – NestJS + Prisma
+
+## Table of Contents
+- [Overview & Architecture](#overview--architecture)
+- [Directory Structure](#directory-structure)
+- [Environment Configuration](#environment-configuration)
+- [Prisma Setup](#prisma-setup)
+- [Build & Run Commands](#build--run-commands)
+- [Linting & Formatting](#linting--formatting)
+- [Testing](#testing)
+- [Dependencies](#dependencies)
+- [Security](#security)
+- [Database & Migrations](#database--migrations)
+- [Monitoring & Logging](#monitoring--logging)
+- [Messaging & Background Jobs](#messaging--background-jobs)
+- [CI/CD Workflow](#cicd-workflow)
+- [Deployment & Orchestration](#deployment--orchestration)
+- [Debugging & Docs](#debugging--docs)
+- [Agent Hints](#agent-hints)
+
+## Overview & Architecture
+- NestJS API serving as the backend for the template.
+- Organised as a monolith with domain modules (e.g. `auth`, `users`, `billing`).
+
+## Directory Structure
+- Root folders: `src/`, `prisma/`, `test/`, `scripts/`, `config/`, `docker/`, `infra/`, `docs/`.
+- Within `src/`, each domain has its own module containing `*.module.ts`, `*.service.ts`, `*.controller.ts`, DTOs and interfaces.
+
+## Environment Configuration
+- `.env.development`, `.env.staging`, `.env.production` define per-environment variables.
+- `ConfigModule.forRoot()` loads the appropriate file based on `NODE_ENV`.
+- Required variables: `DATABASE_URL`, `JWT_SECRET`, `REDIS_HOST`, `SENTRY_DSN`, `MAILER_API_KEY`, `PORT`.
+
+## Prisma Setup
+- Database schema lives in `prisma/schema.prisma`.
+- Local migration: `npx prisma migrate dev --name <migration>`.
+- Production migration: `npx prisma migrate deploy`.
+- Generate client: `npx prisma generate` (automatically run during `migrate dev`).
+
+## Build & Run Commands
+- **Development**
+  ```bash
+  npm install
+  npm run start:dev
+  ```
+- **Production**
+  ```bash
+  npm run build
+  npm run start:prod
+  ```
+- **Docker**
+  ```bash
+  docker build -t backend:latest .
+  docker run --env-file .env.production -p 3000:3000 backend:latest
+  ```
+
+## Linting & Formatting
+- Uses ESLint and Prettier.
+- Husky and lint-staged run on commit.
+- CI executes `npm run lint`.
+
+## Testing
+- Unit tests: `npm run test`.
+- Coverage: `npm run test:cov` (≥80%).
+- `test/` mirrors the `src/` structure.
+
+## Dependencies
+- Dev dependencies limited to build/test tooling (TypeScript, Jest, ESLint, Prettier).
+- Compile TypeScript before production; do not use `ts-node` in prod.
+
+## Security
+- Secrets stored in AWS Secrets Manager or Vault.
+- Global `helmet()` middleware, CORS whitelist and rate limiting via `@nestjs/throttler`.
+
+## Database & Migrations
+- Document retry/backoff strategy for DB connections.
+- Migration commands:
+  ```bash
+  npm run migration:generate -- -n MyMigration
+  npm run migration:run
+  ```
+
+## Monitoring & Logging
+- Use Winston or Pino with JSON output and log rotation.
+- Expose `/health` and `/metrics` endpoints.
+- Integrate Sentry or DataDog for error and performance tracking.
+
+## Messaging & Background Jobs
+- Background agents live under `src/agents/` (e.g. `email.agent.ts`, `queue.agent.ts`).
+- Start workers with `npm run start:worker`.
+- Document cron schedules or job triggers.
+
+## CI/CD Workflow
+- Pipeline: install → lint → test → build → migrate → deploy.
+- Environment secrets injected via repository/CI secrets; never commit `.env` files.
+
+## Deployment & Orchestration
+- Use `ecosystem.config.js` for PM2 or Kubernetes manifests in `infra/`.
+- Provide Helm chart values for image tags, replicas, and resource limits.
+
+## Debugging & Docs
+- `npm run start:debug` enables the Node inspector.
+- Swagger/OpenAPI available at `/api` if `@nestjs/swagger` is configured.
+- `docker-compose.yml` can spin up local dependencies (Postgres, Redis).
+
+## Agent Hints
+- Update `AppModule` and `main.ts` when adding new modules.
+- Always use existing DTOs and validation pipes; follow naming pattern `*.controller.ts`, `*.service.ts`.
+- Run `npx prisma generate` after editing the Prisma schema.
