@@ -15,6 +15,7 @@ Values are loaded from one of the `.env.*` files depending on `NODE_ENV`:
 | `SENTRY_DSN` | Optional DSN for Sentry error tracking |
 | `MAILER_API_KEY` | API key for outbound email provider |
 | `PORT` | HTTP port for the server |
+| `CORS_ORIGIN` | Comma-separated list of allowed CORS origins |
 
 ## Development
 ```bash

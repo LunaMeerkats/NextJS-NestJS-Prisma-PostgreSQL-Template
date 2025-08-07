@@ -16,7 +16,7 @@ Each package has its own environment files so that configuration can vary by dep
 - `.env.staging` – staging environment values.
 - `.env.production` – production secrets and settings.
 
-Important variables include `DATABASE_URL`, `JWT_SECRET`, `REDIS_HOST`, `SENTRY_DSN`, `MAILER_API_KEY`, and `PORT`.
+Important variables include `DATABASE_URL`, `JWT_SECRET`, `REDIS_HOST`, `SENTRY_DSN`, `MAILER_API_KEY`, `PORT`, and `CORS_ORIGIN`.
 
 ### frontend
 - `.env.development` – local development API endpoint.
