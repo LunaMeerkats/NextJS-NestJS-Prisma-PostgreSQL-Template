@@ -13,6 +13,8 @@ The app reads values from `.env.*` files based on `NODE_ENV`.
 
 Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Do not place secrets in these variables.
 
+The application sends strict security headers, including a Content Security Policy defined in `next.config.ts`.
+
 ## Development
 ```bash
 npm install
