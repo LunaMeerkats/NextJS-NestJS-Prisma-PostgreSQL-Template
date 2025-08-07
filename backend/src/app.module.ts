@@ -5,7 +5,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
-  imports: [ThrottlerModule.forRoot({ ttl: 60, limit: 100 })],
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        limit: 10,
+        ttl: 60
+      }
+    ]),
+  ],
   controllers: [AppController],
   providers: [
     AppService,
