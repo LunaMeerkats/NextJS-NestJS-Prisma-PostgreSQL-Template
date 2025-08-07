@@ -1,105 +1,136 @@
-# Frontend AGENTS
+🎨 Frontend AGENTS.md – Next.js + Prisma
+Purpose & layout
 
-Welcome, developer! This file provides essential guidance for working on the Next.js frontend. Use the index below to jump to any section.
+Summarize the app’s purpose (e.g., job board UI, dashboards, candidate portal).
 
-- [1. Project Overview & Layout](#1-project-overview--layout)
-- [2. Environment Configuration](#2-environment-configuration)
-- [3. Local & Production Workflows](#3-local--production-workflows)
-- [4. Linting, Formatting & Testing](#4-linting-formatting--testing)
-- [5. Performance Tips](#5-performance-tips)
-- [6. Security Notes](#6-security-notes)
-- [7. Monitoring & Logging](#7-monitoring--logging)
-- [8. Agent Hints & Naming Conventions](#8-agent-hints--naming-conventions)
-- [9. References](#9-references)
+Describe folder structure: src/app/ or pages/ (routes), components/, prisma/ (for client hooks or queries), public/, styles/, lib/, config/.
 
-## 1. Project Overview & Layout
+Note config files: next.config.js, tsconfig.json, .env.*.
 
-This frontend uses [Next.js](https://nextjs.org/) with TypeScript. The key directories are:
+Environment configuration
 
-- `src/app` or `pages` – application routes and page components.
-- `components` – shared UI pieces.
-- `public` – static assets served as-is.
-- `styles` – global and module CSS files.
-- Configuration files such as `next.config.js` reside in the project root.
-- Deployment-related folders live under `deploy/`.
+Use separate env files: .env.local for developer‑specific secrets (ignored by git), .env.development, .env.production, .env.test.
 
-## 2. Environment Configuration
+Document every variable and which are exposed via NEXT_PUBLIC_*.
 
-Use environment files to manage configuration:
+Next.js loads env variables in order: process.env → .env.$(NODE_ENV).local → .env.local → .env.$(NODE_ENV) → .env
+nextjs.org
+.
 
-- `.env.local` – developer-specific secrets, ignored by git.
-- `.env.development` – defaults for local development.
-- `.env.production` – production values.
-- `.env.test` – values for test runs.
+Only variables prefixed with NEXT_PUBLIC_ are bundled into client JS
+nextjs.org
+; others remain server‑only.
 
-Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Non-public variables can be injected at build time through `next.config.js` via the `env` key.
+For runtime envs, expose via APIs or server‑side functions.
 
-## 3. Local & Production Workflows
+Prisma on the frontend
 
-Install dependencies and run the app locally:
+Use Prisma Client only on the server (API routes, getServerSideProps or server components). Never import Prisma Client into client‑side code.
 
-```bash
-npm install
-npm run dev
-```
+For data fetching, create /lib/prisma.ts to instantiate and reuse the client; handle connection caching in dev.
 
-Build and run in production mode:
+Development & production workflow
 
-```bash
-npm run build
-npm run start
-```
+Local dev: npm install → npm run dev (hot reload).
 
-Docker build and run example:
+Production build: npm run build → npm run start – this builds and starts a Node.js server
+nextjs.org
+; run locally to catch errors before deployment
+nextjs.org
+.
 
-```bash
-docker build -t frontend .
-docker run -p 3000:3000 frontend
-```
+Docker: show Dockerfile example; run with docker build and docker run -p 3000:3000 --env-file .env.production.
 
-Recommended hosting providers include Vercel, AWS (Elastic Beanstalk/Amplify), and DigitalOcean.
+Advise using Vercel or AWS Amplify for hosting; containerize only if necessary.
 
-## 4. Linting, Formatting & Testing
+Linting, formatting & testing
 
-- **ESLint** – run `npm run lint` to ensure code quality.
-- **Prettier** – automatically format staged files via Husky and lint-staged pre-commit hooks.
-- **Jest** with **React Testing Library** – run `npm test` with coverage thresholds enforced in `jest.config.js`.
-- **CI pipeline** – install → lint → test → build → deploy.
+Set up eslint + prettier with next lint integration
+nextjs.org
+.
 
-## 5. Performance Tips
+Use Husky + lint‑staged for pre‑commit checks.
 
-- Leverage automatic code splitting and dynamic imports.
-- Use `next/image` for optimized images and built-in CDN caching.
-- Optimize fonts with `next/font` or self-hosted strategies.
-- Employ Incremental Static Regeneration (ISR) and proper caching headers.
-- Serve assets with compression (gzip or Brotli).
+Unit tests with Jest & React Testing Library; enforce ≥80 % coverage.
 
-## 6. Security Notes
+In CI: install → lint → test → build.
 
-- Protect endpoints with Helmet and configure CORS appropriately.
-- Implement a strict Content Security Policy (CSP).
-- Store secrets outside the repo and inject via environment variables.
-- Enforce HTTPS and HSTS in production.
+Performance best practices
 
-## 7. Monitoring & Logging
+Rely on Next.js automatic optimizations:
 
-- Expose `/api/health` for uptime monitoring.
-- Use structured logs (JSON) to ease log aggregation.
-- Integrate tools like Sentry or LogRocket for error and session tracking.
+Code splitting: Next.js automatically splits code by pages so only what’s needed is loaded on navigation
+nextjs.org
+.
 
-## 8. Agent Hints & Naming Conventions
+Prefetching: Routes are prefetched when links enter the viewport
+nextjs.org
+.
 
-- Pages end with `*.page.tsx` and API routes with `*.api.ts`.
-- Hooks follow the `use*` naming pattern.
-- Share reusable types from `src/types`.
+Automatic static optimization: pages without blocking data are pre-rendered and cached
+nextjs.org
+.
 
-## 9. References
+Use next/image to automatically optimize images and serve modern formats
+nextjs.org
+; Image extends <img> for automatic optimization
+nextjs.org
+.
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Jest](https://jestjs.io/)
-- [React Testing Library](https://testing-library.com/)
-- [ESLint](https://eslint.org/)
-- [Prettier](https://prettier.io/)
-- [Sentry](https://sentry.io/)
-- [LogRocket](https://logrocket.com/)
+Use next/font to self‑host fonts and remove external requests
+nextjs.org
+.
+
+Employ dynamic imports for heavy libraries and enable lazy loading.
+
+Enable compression (gzip/Brotli) and caching headers via CDN or custom server.
+
+Use Incremental Static Regeneration (ISR) and proper cache settings to update content without full rebuild.
+
+Security
+
+Never commit .env files to the repo
+nextjs.org
+.
+
+Add strict Content Security Policy and use helmet (or Next.js’ securityHeaders in next.config.js).
+
+Enforce HTTPS and HSTS; configure CORS for API routes.
+
+Monitoring & logging
+
+Expose an /api/health endpoint for uptime checks.
+
+Use structured logs (JSON) and include correlation IDs; pipe to log service.
+
+Integrate Sentry or LogRocket for error and session tracking.
+
+Agent hints & conventions
+
+Route files: *.page.tsx or nested segments in app/; API routes: *.api.ts.
+
+Hooks must start with use*; context providers end with *Provider.
+
+Shared types live in src/types.
+
+When working with the Prisma schema, regenerate the client and update server components accordingly.
+
+Avoid importing Prisma Client in client components—keep DB access server‑side.
+
+Use the Link component for client navigation and automatic prefetching
+nextjs.org
+.
+
+References & docs
+
+Link to Next.js environment variables guide
+nextjs.org
+.
+
+Link to Next.js production checklist for performance/security tips
+nextjs.org
+.
+
+Link to Prisma docs for migration workflows
+prisma.io
+.
