@@ -6,7 +6,15 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [ThrottlerModule.forRoot({ ttl: 60, limit: 100 }), AuthModule],
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        limit: 10,
+        ttl: 60
+      }
+    ]),
+  ],
   controllers: [AppController],
   providers: [
     AppService,
