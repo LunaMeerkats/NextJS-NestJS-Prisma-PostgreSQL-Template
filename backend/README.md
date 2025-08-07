@@ -11,6 +11,7 @@ Values are loaded from one of the `.env.*` files depending on `NODE_ENV`:
 | --- | --- |
 | `DATABASE_URL` | Connection string for PostgreSQL |
 | `JWT_SECRET` | Secret used to sign authentication tokens |
+| `ENCRYPTION_KEY` | Secret key used for AES encryption |
 | `REDIS_HOST` | Redis host for caching and queues |
 | `SENTRY_DSN` | Optional DSN for Sentry error tracking |
 | `MAILER_API_KEY` | API key for outbound email provider |
@@ -22,6 +23,8 @@ Values are loaded from one of the `.env.*` files depending on `NODE_ENV`:
 npm install
 npm run start:dev
 ```
+
+The API includes built-in authentication with JWT, role-based authorization, CSRF protection, rate limiting and security headers via Helmet and CORS configuration.
 
 ## Testing
 ```bash
