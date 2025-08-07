@@ -64,6 +64,7 @@
 - Integrate Sentry or similar tools for error tracking.
 
 ## Agent Conventions
+- Keep `README.md` files in the root and each package updated with setup instructions and environment variables.
 - Follow naming and workflow rules in service AGENTS files before modifying code.
 - Write TypeScript everywhere; avoid the `any` type and keep shared types in `shared/`.
 - Database queries run server‑side only; never import Prisma Client into React components.

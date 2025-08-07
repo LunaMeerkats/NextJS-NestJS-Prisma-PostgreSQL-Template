@@ -21,6 +21,7 @@
 ## Overview & Architecture
 - NestJS API serving as the backend for the template.
 - Organised as a monolith with domain modules (e.g. `auth`, `users`, `billing`).
+- Refer to `README.md` for environment variables and run commands.
 
 ## Directory Structure
 - Root folders: `src/`, `prisma/`, `test/`, `scripts/`, `config/`, `docker/`, `infra/`, `docs/`.

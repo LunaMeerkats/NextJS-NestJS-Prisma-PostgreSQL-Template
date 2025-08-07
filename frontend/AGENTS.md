@@ -14,6 +14,7 @@
 
 ## Purpose & Layout
 - Describes the Next.js application (e.g. dashboards, portals, etc.).
+- Refer to `README.md` for environment variables and development scripts.
 - Directory structure:
   - `src/app/` or `pages/` – routes.
   - `components/`, `lib/`, `public/`, `styles/`, `prisma/`.
